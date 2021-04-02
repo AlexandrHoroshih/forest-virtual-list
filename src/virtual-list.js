@@ -19,28 +19,22 @@ export const virtualList = (config) => {
 
   // sizes cache
   const $sizes = createStore({ ref: new Map() });
-  const updateSizes = createEvent();
-
-  $sizes.on(updateSizes, (sizes, cb) => {
-    const { ref } = sizes;
-
-    cb(ref);
-
-    return { ref };
-  });
 
   $sizes.on(
     sample({
       source: $source,
       clock: [mounted, $source],
     }),
-    ({ ref }, list) => {
+    (prev, list) => {
+      const { ref } = prev;
+
       list.forEach((item, index) => {
         const key = getKey(item);
+        const currItem = ref.get(key);
         const prevKey = index > 0 ? getKey(list[index - 1]) : null;
         const prevItem = prevKey ? ref.get(prevKey) : undefined;
 
-        const size = estimateSize(item);
+        const size = currItem ? currItem.size : estimateSize(item);
         const start = prevItem ? prevItem.end : 0;
         const end = start + size;
 
@@ -56,6 +50,8 @@ export const virtualList = (config) => {
       return { ref };
     },
   );
+
+  debug($sizes);
 
   // virtual list properties
   const $scrollOffset = createStore(0);
@@ -80,18 +76,21 @@ export const virtualList = (config) => {
   });
 
   sample({
-    source: [$sizes, $height, $scrollOffset],
+    source: [$sizes, $height, $scrollOffset, $source],
     clock: [mounted, $scrollOffset],
-    fn: ([sizes, height, offset]) => {
-      const items = Array.from(sizes.ref.values());
+    fn: ([sizes, height, offset, items]) => {
+      const { ref } = sizes;
       const total = items.length;
 
       let start = total - 1;
-      while (start > 0 && items[start].end >= offset) {
+      while (start > 0 && ref.get(getKey(items[start])).end >= offset) {
         start -= 1;
       }
       let end = 0;
-      while (end < total - 1 && items[end].start <= offset + height) {
+      while (
+        end < total - 1 &&
+        ref.get(getKey(items[end])).start <= offset + height
+      ) {
         end += 1;
       }
 
@@ -106,8 +105,6 @@ export const virtualList = (config) => {
   const $visible = combine($range, $source, (range, list) => {
     return list.slice(range.start, range.end);
   });
-
-  // debug($range);
 
   // edge detection
   const $isBottomEdge = combine(
