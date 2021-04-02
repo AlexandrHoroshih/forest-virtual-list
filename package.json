@@ -16,7 +16,7 @@
     "faker": "5.5.2",
     "foliage": "0.106.0",
     "forest": "0.19.6",
-    "parcel-bundler": "^1.6.1",
+    "parcel-bundler": "^1.12.5",
     "patronum": "1.1.0"
   },
   "devDependencies": {
