@@ -1,11 +1,11 @@
-import { createStore, createEvent, sample, combine } from "effector";
-import { list, node, h, spec, val } from "forest";
-import { debug } from "patronum/debug";
+import { createStore, createEvent, sample, combine, forward } from 'effector';
+import { list, node, h, spec, val } from 'forest';
+import { debug } from 'patronum/debug';
 
 export const virtualList = (config) => {
   // config
   const { options, ...baseConfig } = config;
-  const { overscan, estimateSize } = options;
+  const { overscan, estimateSize, onTopHit, onBottomHit } = options;
   const $source = config.source;
   const getKey = (item) => (config.key ? item[config.key] : item);
   const mounted = createEvent();
@@ -32,7 +32,7 @@ export const virtualList = (config) => {
   $sizes.on(
     sample({
       source: $source,
-      clock: [mounted, $source]
+      clock: [mounted, $source],
     }),
     ({ ref }, list) => {
       list.forEach((item, index) => {
@@ -49,12 +49,12 @@ export const virtualList = (config) => {
           key,
           start,
           end,
-          size
+          size,
         });
       });
 
       return { ref };
-    }
+    },
   );
 
   // virtual list properties
@@ -67,8 +67,8 @@ export const virtualList = (config) => {
     { start: 0, end: 10 },
     {
       updateFilter: (range, prev) =>
-        range.start !== prev.start || range.end !== prev.end
-    }
+        range.start !== prev.start || range.end !== prev.end,
+    },
   );
 
   const $totalSize = combine($source, $sizes, (list, sizes) => {
@@ -100,19 +100,36 @@ export const virtualList = (config) => {
 
       return { start, end };
     },
-    target: $range
+    target: $range,
   });
 
   const $visible = combine($range, $source, (range, list) => {
     return list.slice(range.start, range.end);
   });
 
-  debug($totalSize, $visible);
+  // debug($range);
+
+  // edge detection
+  const $isBottomEdge = combine(
+    [$range, $source],
+    ([range, s]) => range.end === s.length,
+  );
+  const $isTopEdge = $range.map((range) => range.start === 0);
+
+  forward({
+    from: $isBottomEdge,
+    to: onBottomHit,
+  });
+
+  forward({
+    from: $isTopEdge,
+    to: onTopHit,
+  });
 
   // parent node setup
   node((root) => {
     mounted();
-    console.log("m");
+    console.log('m');
     const unwatch = setupScrollHanlder(root, (offset) => {
       setScrollOffset(offset);
     });
@@ -121,18 +138,18 @@ export const virtualList = (config) => {
     return () => {
       sizeObserver.disconnect();
       unwatch();
-      console.log("un");
+      console.log('un');
     };
   });
 
   // list setup
-  h("div", () => {
+  h('div', () => {
     spec({
       style: {
-        position: "relative",
-        width: "100%",
-        height: val`${$totalSize}px`
-      }
+        position: 'relative',
+        width: '100%',
+        height: val`${$totalSize}px`,
+      },
     });
 
     list({
@@ -140,28 +157,28 @@ export const virtualList = (config) => {
       source: $visible,
       fn: (item) => {
         console.log(item);
-        h("div", () => {
+        h('div', () => {
           spec({
             style: {
-              width: "100%",
-              position: "absolute",
-              top: "0px",
-              left: "0px",
+              width: '100%',
+              position: 'absolute',
+              top: '0px',
+              left: '0px',
               height: val`${combine(
                 item.key,
                 $sizes,
-                (key, sizes) => sizes.ref.get(key).size
+                (key, sizes) => sizes.ref.get(key).size,
               )}px`,
               transform: val`translateY(${combine(
                 item.key,
                 $sizes,
-                (key, sizes) => sizes.ref.get(key).start
-              )}px)`
-            }
+                (key, sizes) => sizes.ref.get(key).start,
+              )}px)`,
+            },
           });
           config.fn(item);
         });
-      }
+      },
     });
   });
 };
@@ -185,10 +202,10 @@ function setupScrollHanlder(root, onScrollBase) {
     onScrollBase(root.scrollTop);
   };
 
-  root.addEventListener("scroll", onScroll, {
+  root.addEventListener('scroll', onScroll, {
     capture: false,
-    passive: true
+    passive: true,
   });
 
-  return () => root.removeEventListener("scroll", onScroll);
+  return () => root.removeEventListener('scroll', onScroll);
 }
