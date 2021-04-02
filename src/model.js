@@ -18,14 +18,26 @@ const getNext = (n = 10) => {
 
 export const next = createEvent();
 export const prev = createEvent();
-export const $list = createStore(getNext(1000));
+export const deleteRandomRange = createEvent();
+export const $list = createStore(getNext(100));
 
 $list.watch((l) => console.log('list updated', l));
 
-$list.on(next, (list, p) => list.concat(getNext(p)));
-$list.on(prev, (list, p) => getNext(p).concat(list));
+$list.on(next, (list, p) => list.concat(getNext(10)));
+$list.on(prev, (list, p) => getNext(10).concat(list));
+$list.on(deleteRandomRange, (list) => {
+  const start = Math.floor(Math.random() * 10);
+  const size = Math.ceil(Math.random() * 25);
+
+  const next = [...list].splice(start, size);
+
+  return next;
+});
 
 export const $show = createStore(true);
 export const toggle = createEvent();
 
 $show.on(toggle, (s) => !s);
+
+export const $hitBottom = createStore(false);
+export const $hitTop = createStore(false);

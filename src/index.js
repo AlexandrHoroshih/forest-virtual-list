@@ -1,8 +1,17 @@
-import { using, spec, h, variant } from "forest";
-import { styled, StyledRoot } from "foliage";
+import { using, spec, h, variant, val } from 'forest';
+import { styled, StyledRoot } from 'foliage';
 
-import { $list, $show, toggle } from "./model";
-import { virtualList } from "./virtual-list";
+import {
+  $list,
+  $show,
+  toggle,
+  $hitBottom,
+  $hitTop,
+  prev,
+  next,
+  deleteRandomRange,
+} from './model';
+import { virtualList } from './virtual-list';
 
 const Wrapper = styled.div`
   display: flex;
@@ -18,6 +27,7 @@ const List = styled.ul`
   border: 1px solid red;
   padding: 0;
   margin: 0;
+  resize: vertical;
 `;
 
 const Item = styled.li`
@@ -34,15 +44,50 @@ const Line = styled.div``;
 
 const App = () => {
   Wrapper(() => {
-    h("button", () => {
+    h('h1', () => {
       spec({
-        handler: {
-          click: toggle
-        },
-        text: $show.map((s) => (s ? "Hide list" : "Show list"))
+        text: 'Virtual list with `forest`',
+      });
+    });
+    h('h2', () => {
+      spec({
+        text: val`Item's count: ${$list.map((l) => l.length)}`,
       });
     });
 
+    h('button', () => {
+      spec({
+        handler: {
+          click: toggle,
+        },
+        text: $show.map((s) => (s ? 'Hide list' : 'Show list')),
+      });
+    });
+
+    h('button', () => {
+      spec({
+        handler: {
+          click: prev,
+        },
+        text: 'Add items to top',
+      });
+    });
+    h('button', () => {
+      spec({
+        handler: {
+          click: next,
+        },
+        text: 'Add items to bottom',
+      });
+    });
+    h('button', () => {
+      spec({
+        handler: {
+          click: deleteRandomRange,
+        },
+        text: 'Delete random items',
+      });
+    });
     variant({
       source: $show,
       cases: {
@@ -51,29 +96,31 @@ const App = () => {
             virtualList({
               options: {
                 overscan: 2,
-                estimateSize: () => 100
+                estimateSize: () => 100,
+                onTopHit: $hitTop,
+                onBottomHit: $hitBottom,
               },
               source: $list,
-              key: "account",
-              fields: ["color", "type", "name", "amount"],
+              key: 'account',
+              fields: ['color', 'type', 'name', 'amount'],
               fn: ({ fields: [color, type, name, amount] }) =>
                 Item(() => {
                   spec({
                     styleVar: {
-                      bgColor: color
-                    }
+                      bgColor: color,
+                    },
                   });
 
                   Line({ text: type });
                   Line({ text: name });
                   Line({ text: amount });
-                })
+                }),
             });
-          })
-      }
+          }),
+      },
     });
   });
 };
 
-using(document.querySelector("#app"), App);
-using(document.querySelector("head"), StyledRoot);
+using(document.querySelector('#app'), App);
+using(document.querySelector('head'), StyledRoot);
