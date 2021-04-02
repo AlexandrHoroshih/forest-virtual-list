@@ -67,13 +67,20 @@ export const virtualList = (config) => {
     },
   );
 
-  const $totalSize = combine($source, $sizes, (list, sizes) => {
-    const lastKey = getKey(list[list.length - 1]);
-    const lastItem = sizes.ref.get(lastKey);
-    const result = lastItem ? lastItem.end : 0;
+  const $totalSize = combine(
+    $source,
+    $sizes,
+    $height,
+    (list, sizes, height) => {
+      if (list.length === 0) return height;
 
-    return result;
-  });
+      const lastKey = getKey(list[list.length - 1]);
+      const lastItem = sizes.ref.get(lastKey);
+      const result = lastItem ? lastItem.end : 0;
+
+      return result;
+    },
+  );
 
   sample({
     source: [$sizes, $height, $scrollOffset, $source],
