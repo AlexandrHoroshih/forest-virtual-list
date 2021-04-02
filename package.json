@@ -5,7 +5,11 @@
   "main": "index.html",
   "scripts": {
     "start": "parcel index.html --open",
-    "build": "parcel build index.html"
+    "build": "parcel build index.html",
+    "pretty": "prettier --write .",
+    "commit": "git-cz",
+    "lint:code": "eslint \"./**/*.{js,jsx}\"",
+    "lint:styles": "stylelint \"./**/*.css\""
   },
   "dependencies": {
     "effector": "21.8.11",
@@ -16,10 +20,51 @@
     "patronum": "1.1.0"
   },
   "devDependencies": {
-    "@babel/core": "7.2.0"
+    "@babel/core": "7.2.0",
+    "@commitlint/cli": "^12.1.1",
+    "@commitlint/config-conventional": "^12.1.1",
+    "babel-eslint": "^10.1.0",
+    "commitizen": "^4.2.3",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^7.23.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-import-resolver-node": "^0.3.4",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-import-helpers": "^1.1.0",
+    "lint-staged": "^10.5.4",
+    "prettier": "^2.2.1",
+    "simple-git-hooks": "^2.3.0",
+    "stylelint": "^13.12.0",
+    "stylelint-config-recess-order": "^2.3.0",
+    "stylelint-config-recommended": "^4.0.0",
+    "stylelint-order": "^4.1.0"
   },
   "resolutions": {
     "@babel/preset-env": "7.13.8"
   },
-  "keywords": []
+  "keywords": [],
+  "prettier": {
+    "trailingComma": "all",
+    "singleQuote": true
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "lint-staged": {
+    "*.{tsx,ts,js,jsx,scss,css,js,json,md}": [
+      "prettier --write"
+    ]
+  },
+  "simple-git-hooks": {
+    "pre-commit": "lint-staged",
+    "commit-msg": "commitlint -e"
+  }
 }
