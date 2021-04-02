@@ -18,7 +18,7 @@ const getNext = (n = 10) => {
 
 export const next = createEvent();
 export const prev = createEvent();
-export const $list = createStore(getNext(100));
+export const $list = createStore(getNext(1000));
 
 $list.watch((l) => console.log("list updated", l));
 
