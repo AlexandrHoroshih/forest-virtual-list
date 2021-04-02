@@ -60,7 +60,7 @@ export const virtualList = (config) => {
   $scrollOffset.on(setScrollOffset, (_, next) => next);
 
   const $range = createStore(
-    { start: 0, end: 10 },
+    { start: 0, end: 0 },
     {
       updateFilter: (range, prev) =>
         range.start !== prev.start || range.end !== prev.end,
@@ -84,7 +84,7 @@ export const virtualList = (config) => {
 
   sample({
     source: [$sizes, $height, $scrollOffset, $source],
-    clock: [mounted, $scrollOffset],
+    clock: [mounted, $scrollOffset, $height],
     fn: ([sizes, height, offset, items]) => {
       const { ref } = sizes;
       const total = items.length;
