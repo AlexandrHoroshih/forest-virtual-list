@@ -1,4 +1,4 @@
-import { createStore, createEvent, sample, combine, forward } from 'effector';
+import { createStore, createEvent, sample, combine } from 'effector';
 import { list, node, h, spec, val } from 'forest';
 import { debug } from 'patronum/debug';
 
@@ -134,14 +134,16 @@ export const virtualList = (config) => {
   );
   const $isTopEdge = $range.map((range) => range.start === 0);
 
-  forward({
-    from: $isBottomEdge,
-    to: onBottomHit,
+  sample({
+    source: $isBottomEdge,
+    clock: [mounted, $scrollOffset],
+    target: onBottomHit,
   });
 
-  forward({
-    from: $isTopEdge,
-    to: onTopHit,
+  sample({
+    source: $isTopEdge,
+    clock: [mounted, $scrollOffset],
+    target: onTopHit,
   });
 
   // parent node setup
