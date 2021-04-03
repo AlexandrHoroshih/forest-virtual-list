@@ -1,5 +1,6 @@
 import { using, spec, h, variant, val } from 'forest';
 import { styled, StyledRoot } from 'foliage';
+import { combine } from 'effector';
 
 import {
   $list,
@@ -41,6 +42,9 @@ const Item = styled.li`
 `;
 
 const Line = styled.div``;
+
+$hitBottom.watch(console.log);
+$hitTop.watch(console.log);
 
 const App = () => {
   Wrapper(() => {
@@ -86,6 +90,17 @@ const App = () => {
           click: deleteRandomRange,
         },
         text: 'Delete random items',
+      });
+    });
+    h('div', () => {
+      spec({
+        text: combine($hitTop, $hitBottom, (top, bottom) =>
+          top
+            ? 'This is top of the list'
+            : bottom
+            ? 'You hit the bottom'
+            : 'Scrolling...',
+        ),
       });
     });
     variant({
