@@ -19,11 +19,25 @@ export const virtualList = (config) => {
 
   // sizes cache
   const $sizes = createStore({ ref: new Map() });
+  const cacheSize = createEvent();
+
+  $sizes.on(cacheSize, (sizes, p) => {
+    const { key, size } = p;
+    const { ref } = sizes;
+    const prev = ref.get(key);
+
+    ref.set(key, {
+      ...prev,
+      size,
+    });
+
+    return { ref };
+  });
 
   $sizes.on(
     sample({
       source: $source,
-      clock: [mounted, $source],
+      clock: [mounted, $source, cacheSize],
     }),
     (prev, list) => {
       const { ref } = prev;
@@ -84,7 +98,7 @@ export const virtualList = (config) => {
 
   sample({
     source: [$sizes, $height, $scrollOffset, $source],
-    clock: [mounted, $scrollOffset, $height],
+    clock: [mounted, $scrollOffset, $height, $sizes, $source],
     fn: ([sizes, height, offset, items]) => {
       const { ref } = sizes;
       const total = items.length;
@@ -179,6 +193,19 @@ export const virtualList = (config) => {
                 (key, sizes) => sizes.ref.get(key).start,
               )}px)`,
             },
+            data: {
+              key: item.key,
+            },
+          });
+
+          node((ref) => {
+            setTimeout(() => {
+              const itemNode = ref.firstChild;
+              const key = ref.dataset.key;
+              const { height } = itemNode.getBoundingClientRect();
+
+              cacheSize({ key, size: height });
+            });
           });
           config.fn(item);
         });
