@@ -9,8 +9,9 @@ const getNext = (n = 10) => {
 
   for (let i = 0; i < n; i += 1) {
     const fakeData = faker.helpers.createTransaction();
+    const randomSize = Math.ceil(100 + Math.random() * 100);
 
-    next.push({ ...fakeData, color: getRandomColor() });
+    next.push({ ...fakeData, color: getRandomColor(), size: randomSize });
   }
 
   return next;

@@ -102,18 +102,23 @@ const App = () => {
               },
               source: $list,
               key: 'account',
-              fields: ['color', 'type', 'name', 'amount'],
-              fn: ({ fields: [color, type, name, amount] }) =>
+              fields: ['color', 'type', 'name', 'amount', 'size'],
+              fn: ({ fields: [color, type, name, amount, size] }) =>
                 Item(() => {
                   spec({
                     styleVar: {
                       bgColor: color,
+                    },
+                    style: {
+                      height: val`${size}px`,
+                      overflow: 'hidden',
                     },
                   });
 
                   Line({ text: type });
                   Line({ text: name });
                   Line({ text: amount });
+                  Line({ text: val`Random height: ${size}px` });
                 }),
             });
           }),
