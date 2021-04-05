@@ -204,9 +204,12 @@ export const virtualList = (config) => {
             setTimeout(() => {
               const itemNode = ref.firstChild;
               const key = ref.dataset.key;
-              const { height } = itemNode.getBoundingClientRect();
 
-              cacheSize({ key, size: height });
+              if (itemNode) {
+                const { height } = itemNode.getBoundingClientRect();
+
+                cacheSize({ key, size: height });
+              }
             });
           });
           config.fn(item);
