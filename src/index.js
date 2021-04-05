@@ -18,12 +18,16 @@ const Wrapper = styled.div`
   display: flex;
   flex-flow: column;
   align-items: center;
+
+  & > * {
+    margin-bottom: 8px;
+  }
 `;
 
 const List = styled.ul`
   max-width: 80%;
-  min-width: 200px;
-  max-height: 400px;
+  min-width: 40vw;
+  max-height: 80vh;
   overflow: hidden scroll;
   border: 1px solid red;
   padding: 0;
