@@ -18,6 +18,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-flow: column;
   align-items: center;
+  min-height: 900px;
 
   & > * {
     margin-bottom: 8px;
@@ -26,13 +27,19 @@ const Wrapper = styled.div`
 
 const List = styled.ul`
   max-width: 80%;
+  width: 100%;
   min-width: 40vw;
-  max-height: 80vh;
+  height: 60vh;
   overflow: hidden scroll;
   border: 1px solid red;
   padding: 0;
   margin: 0;
-  resize: vertical;
+  resize: both;
+
+  @media (min-width: 900px) {
+    width: 400px;
+    height: 800px;
+  }
 `;
 
 const Item = styled.li`
@@ -114,7 +121,7 @@ const App = () => {
           List(() => {
             virtualList({
               options: {
-                overscan: 2,
+                overscan: 10,
                 estimateSize: () => 100,
                 onTopHit: $hitTop,
                 onBottomHit: $hitBottom,
